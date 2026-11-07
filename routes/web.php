@@ -12,6 +12,7 @@ Auth::routes();
 
 // Route untuk menampilkan feed curhatan
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index')->middleware('auth');
+Route::post('/posts', [PostController::class, 'store'])->name('posts.store')->middleware('auth');
 
 // Ubah redirect bawaan /home agar mengarah ke /posts
 Route::get('/home', function () {
