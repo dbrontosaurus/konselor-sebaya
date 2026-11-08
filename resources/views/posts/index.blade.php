@@ -61,8 +61,9 @@
 
                             <hr class="text-muted">
 
-                            <a href="#" class="text-decoration-none text-secondary">
-                                💬 {{ $post->comments->count() }} Komentar
+                            <a href="{{ route('posts.show', $post->id) }}"
+                                class="text-decoration-none text-primary fw-bold">
+                                💬 {{ $post->comments->count() }} Komentar &rarr;
                             </a>
                         </div>
                     </div>

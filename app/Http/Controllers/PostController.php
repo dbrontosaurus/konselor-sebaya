@@ -30,4 +30,12 @@ class PostController extends Controller
         // 3. Kembalikan ke halaman beranda
         return redirect()->route('posts.index')->with('success', 'Curhatanmu berhasil dibagikan!');
     }
+
+    public function show(Post $post)
+    {
+        // Eager load relasi user pada post, dan user pada komentar
+        $post->load(['user', 'comments.user']);
+        
+        return view('posts.show', compact('post'));
+    }
 }
