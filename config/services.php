@@ -14,6 +14,12 @@ return [
     |
     */
 
+
+    'n8n' => [
+        'webhook_url' => env('N8N_WEBHOOK_URL'),
+        'chat_webhook' => env('N8N_CHAT_WEBHOOK_URL'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
@@ -33,6 +39,10 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+    ],
+
+        'hermes' => [
+        'webhook_token' => env('HERMES_WEBHOOK_TOKEN'),
     ],
 
 ];

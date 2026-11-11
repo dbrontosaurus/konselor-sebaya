@@ -33,22 +33,45 @@ class PostController extends Controller
             'is_anonymous' => $request->has('is_anonymous'),
         ]);
 
-        // 2. Kirim data ke n8n melalui Webhook secara background
+
+        // 2. Kirim data ke n8n melalui Webhook
         try {
-            $webhookUrl = env('N8N_WEBHOOK_URL');
-            
-            if ($webhookUrl) {
-                Http::timeout(3)->post($webhookUrl, [
-                    'post_id' => $post->id,
-                    'author' => $post->is_anonymous ? 'Anonim' : $request->user()->name,
-                    'body' => $post->body,
-                    'timestamp' => $post->created_at->toIso8601String(),
-                ]);
+            $webhookUrl = config('services.n8n.webhook_url');
+
+            if (!$webhookUrl) {
+                Log::error('N8N_WEBHOOK_URL belum dikonfigurasi.');
+            } else {
+                $response = Http::timeout(3)
+                    ->acceptJson()
+                    ->post($webhookUrl, [
+                        'post_id' => $post->id,
+                        'author' => $post->is_anonymous
+                            ? 'Anonim'
+                            : $request->user()->name,
+                        'body' => $post->body,
+                        'timestamp' => $post->created_at->toIso8601String(),
+                    ]);
+
+                if ($response->successful()) {
+                    Log::info('Webhook n8n berhasil dipanggil.', [
+                        'post_id' => $post->id,
+                        'status' => $response->status(),
+                    ]);
+                } else {
+                    Log::error('Webhook n8n gagal merespons sukses.', [
+                        'post_id' => $post->id,
+                        'status' => $response->status(),
+                        'response' => $response->body(),
+                    ]);
+                }
             }
-        } catch (\Exception $e) {
-            // Jika n8n mati, website tetap berjalan normal, error dicatat di log file
-            Log::error('Gagal mengirim webhook ke n8n: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengirim webhook ke n8n.', [
+                'post_id' => $post->id,
+                'error' => $e->getMessage(),
+            ]);
         }
+
 
         return redirect()->route('posts.index')->with('success', 'Curhatanmu berhasil dibagikan!');
     }

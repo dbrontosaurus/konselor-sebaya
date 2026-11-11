@@ -21,20 +21,13 @@
       "parameters": {
         "method": "POST",
         "url": "http://127.0.0.1:8000/api/webhook/hermes-reply",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer token-rahasia-hermes-123"
-            }
-          ]
-        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
             {
-              "name": "=post_id",
+              "name": "post_id",
               "value": "={{ $('Webhook').item.json.body.post_id }}"
             },
             {
@@ -52,7 +45,13 @@
         0
       ],
       "id": "92b396ce-f00f-4873-b01a-ecc514c42db0",
-      "name": "HTTP Request"
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3kekIax1I9gcRjXy",
+          "name": "Header Auth account"
+        }
+      }
     },
     {
       "parameters": {
@@ -63,7 +62,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer TARUH_API_KEY_DISINI"
+              "value": "Bearer api key acak disini"
             },
             {
               "name": "Content-Type",
@@ -72,13 +71,8 @@
           ]
         },
         "sendBody": true,
-        "specifyBody": "=json",
-        "bodyParameters": {
-          "parameters": [
-            {}
-          ]
-        },
-        "jsonBody": "={\n  \"model\": \"nvidia/nemotron-3-ultra-550b-a55b:free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Kamu adalah 'Bot Konselor' di aplikasi Console-Ing. Berikan tanggapan yang empatik. Aturan SANGAT KETAT: Jika pengguna curhat tentang putus asa atau krisis, kamu HANYA BOLEH mengarahkan mereka ke konselor internal kami. Dilarang memberikan nomor telepon, hotline darurat, atau rujukan eksternal apapun karena aplikasi ini sudah diawasi tenaga profesional. Berikan 1-2 kalimat penyemangat, lalu tutup dengan SATU kalimat ini (jangan diketik ulang 2 kali): 'Apakah kamu mau membuat jadwal dengan konselor secara offline, atau ingin chat dengan konselor secara online?'. Maksimal 4 kalimat.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.body.body }}\"\n    }\n  ]\n}",
+        "specifyBody": "json",
+        "jsonBody": "={{ \n  JSON.stringify({\n    model: \"nvidia/nemotron-3-ultra-550b-a55b:free\",\n    messages: [\n      {\n        role: \"system\",\n        content: \"Kamu adalah 'Bot Konselor' di aplikasi Console-Ing. Berikan tanggapan yang empatik. Aturan SANGAT KETAT: Jika pengguna curhat tentang putus asa atau krisis, kamu HANYA BOLEH mengarahkan mereka ke konselor internal kami. Dilarang memberikan nomor telepon, hotline darurat, atau rujukan eksternal apapun karena aplikasi ini sudah diawasi tenaga profesional. Berikan 1-2 kalimat penyemangat, lalu tutup dengan SATU kalimat ini (jangan diketik ulang 2 kali): 'Apakah kamu mau membuat jadwal dengan konselor secara offline, atau ingin chat dengan konselor secara online?'. Maksimal 4 kalimat.\"\n      },\n      {\n        role: \"user\",\n        content: String($json.body.body ?? \"\")\n      }\n    ]\n  })\n}}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -119,9 +113,16 @@
   "active": true,
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate"
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
-  "versionId": "1ae050f4-a9cf-4487-8fc4-e58c1900b49a",
+  "versionId": "b2bf24d9-c8c8-48c7-a06c-f00c5d8d6d43",
   "meta": {
     "instanceId": "86ffd36649ba2f0c23261ee785a6404fcf972b4a5c4c3e0fcc6ccfa0bc240825"
   },

@@ -1,0 +1,135 @@
+{
+  "name": "konselor_chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatbot",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e1e56d09-8266-4fbc-b9c6-d72ea942bb06",
+      "name": "Webhook Chatbot",
+      "webhookId": "cec9f321-78f2-4c05-aa2d-3ac01da40bcb"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nconst history = Array.isArray(body.history) ? body.history : [];\nconst system = \"Kamu adalah Bot Konselor Sebaya di aplikasi Console-Ing, platform konseling sebaya untuk mahasiswa. Tugasmu mendengarkan dengan hangat dan tidak menghakimi. Balas dalam bahasa Indonesia yang santai tapi sopan, maksimal 4 kalimat. Mulai dengan menanggapi perasaan pengguna, lalu ajukan satu pertanyaan lanjutan yang ringan. Jangan mendiagnosis dan jangan memberi saran medis atau obat. Jangan mengaku sebagai manusia atau tenaga profesional. Jika pengguna ingin bertemu langsung, atau masalahnya tampak berat dan berlarut, tutup dengan satu kalimat ini: 'Apakah kamu mau membuat jadwal konseling secara offline, atau ingin chat dengan konselor secara online?'. Jika pengguna menyebut ingin menyakiti diri, mengakhiri hidup, atau sedang dalam bahaya: tanggapi dengan tenang dan peduli, minta mereka menghubungi orang yang dipercaya di dekatnya, dan sebutkan Healing119 dari Kementerian Kesehatan: telepon 119 ekstensi 8 atau buka healing119.id. Dalam kasus itu, keselamatan didahulukan di atas arahan jadwal.\";\nconst messages = [\n  { role: 'system', content: system },\n  ...history.map(m => ({ role: m.role === 'bot' ? 'assistant' : 'user', content: String(m.text || '') })),\n  { role: 'user', content: String(body.message || '') },\n];\nreturn [{ json: { messages } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "14b92b4a-9a54-4ea5-b536-f403006ae48c",
+      "name": "Susun Pesan"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer api acak disini"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'nvidia/nemotron-3-ultra-550b-a55b:free', messages: $json.messages, max_tokens: 400 }) }}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "0f7ec489-1404-4826-b85f-87eed0d5d119",
+      "name": "OpenRouter",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ reply: ($json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) || 'Maaf, aku belum bisa menjawab sekarang. Coba kirim lagi sebentar.' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "b1dadcf6-38d8-4906-8141-2131b4d10005",
+      "name": "Balas ke Laravel"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Chatbot": {
+      "main": [
+        [
+          {
+            "node": "Susun Pesan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Susun Pesan": {
+      "main": [
+        [
+          {
+            "node": "OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "Balas ke Laravel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "4d1f9047-8b39-41cb-8d40-bb255987e029",
+  "meta": {
+    "instanceId": "86ffd36649ba2f0c23261ee785a6404fcf972b4a5c4c3e0fcc6ccfa0bc240825"
+  },
+  "id": "DsqetHxojcZriqhW",
+  "tags": []
+}

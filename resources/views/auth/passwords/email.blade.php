@@ -1,47 +1,42 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Reset Password') }}</div>
-
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
+    <section class="ci-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-9 col-lg-6 col-xl-5">
+                    <div class="card ci-auth-card">
+                        <div class="ci-auth-banner">
+                            <h1>Atur ulang kata sandi</h1>
+                            <p>Masukkan email akunmu. Kami kirim tautan untuk membuat kata sandi baru.</p>
                         </div>
-                    @endif
+                        <div class="card-body p-4 p-md-5">
+                            @if (session('status'))
+                                <div class="alert alert-success" role="alert">
+                                    {{ session('status') }}
+                                </div>
+                            @endif
 
-                    <form method="POST" action="{{ route('password.email') }}">
-                        @csrf
+                            <form method="POST" action="{{ route('password.email') }}">
+                                @csrf
 
-                        <div class="row mb-3">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
+                                <div class="mb-4">
+                                    <label for="email" class="form-label">Alamat email</label>
+                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                                        name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                                    @error('email')
+                                        <div class="invalid-feedback" role="alert">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg">Kirim tautan atur ulang</button>
+                                </div>
+                            </form>
                         </div>
-
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Send Password Reset Link') }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 @endsection

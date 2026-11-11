@@ -24,9 +24,9 @@ class CommentController extends Controller
 
     public function storeAi(Request $request)
     {
-        // 1. Validasi Secret Key sederhana untuk keamanan
-        // Pastikan hanya n8n milikmu yang bisa mengirim data ke sini
-        if ($request->header('Authorization') !== 'Bearer token-rahasia-hermes-123') {
+        $expectedToken = 'Bearer ' . env('HERMES_WEBHOOK_TOKEN');
+
+        if ($request->header('Authorization') !== $expectedToken) {
             return response()->json(['message' => 'Akses ditolak'], 401);
         }
 

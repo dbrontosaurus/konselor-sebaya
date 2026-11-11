@@ -5,10 +5,13 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\ChatbotController;
 
 Route::get('/', function () {
     return view('welcome'); // Ini halaman landing page bawaan
 });
+
+
 
 Auth::routes();
 
@@ -29,6 +32,10 @@ Route::middleware('auth')->group(function () {
     // Menyimpan jadwal
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
 });
+
+Route::post('/chatbot', [ChatbotController::class, 'send'])
+    ->middleware('throttle:20,1')
+    ->name('chatbot.send');
 
 // Ubah redirect bawaan /home agar mengarah ke /posts
 Route::get('/home', function () {
