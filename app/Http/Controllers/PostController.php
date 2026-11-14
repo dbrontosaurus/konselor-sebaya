@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\User;
+use App\Support\CrisisSafety;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http; // Tambahkan ini
 use Illuminate\Support\Facades\Log;  // Tambahkan ini
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -34,6 +37,27 @@ class PostController extends Controller
         ]);
 
 
+        // 1b. Curhat berisi tanda krisis: balas langsung dengan teks tetap,
+        //     tanpa menunggu n8n atau model AI, lalu selesai.
+        if (CrisisSafety::detect($post->body)) {
+            $aiUser = User::firstOrCreate(
+                ['email' => 'hermes@konselor.local'],
+                [
+                    'name' => 'Hermes AI',
+                    'password' => bcrypt(Str::random(32)),
+                ]
+            );
+
+            $post->comments()->create([
+                'body' => CrisisSafety::REPLY,
+                'user_id' => $aiUser->id,
+            ]);
+
+            Log::info('Curhat krisis dijawab pengaman tetap.', ['post_id' => $post->id]);
+
+            return redirect()->route('posts.index')->with('success', 'Curhatanmu berhasil dibagikan!');
+        }
+
         // 2. Kirim data ke n8n melalui Webhook
         try {
             $webhookUrl = config('services.n8n.webhook_url');
@@ -43,6 +67,7 @@ class PostController extends Controller
             } else {
                 $response = Http::timeout(3)
                     ->acceptJson()
+                    ->withHeaders(['X-Console-Secret' => (string) config('services.n8n.webhook_secret')])
                     ->post($webhookUrl, [
                         'post_id' => $post->id,
                         'author' => $post->is_anonymous

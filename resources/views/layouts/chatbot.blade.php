@@ -5,7 +5,7 @@
         <header class="ci-chat-head">
             <span class="ci-avatar" aria-hidden="true">🤖</span>
             <div>
-                <strong>Bot Konselor Sebaya</strong>
+                <strong>Solar</strong>
                 <small>Teman cerita pertamamu</small>
             </div>
             <button type="button" class="btn-close btn-close-white" data-chatbot-close aria-label="Tutup chat"></button>

@@ -44,10 +44,19 @@ if (root) {
     /* ---------- Render ---------- */
     const scrollDown = () => { log.scrollTop = log.scrollHeight; };
 
+    // Balasan model kadang memakai markdown atau baris kosong di ujung.
+    const tidy = (t) => String(t)
+        .replace(/\*\*(.+?)\*\*/g, '$1')
+        .replace(/(^|\s)\*(\S[^*]*?)\*(?=\s|$)/g, '$1$2')
+        .replace(/`+/g, '')
+        .replace(/^#{1,6}\s+/gm, '')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+
     const addBubble = (role, text, isError = false) => {
         const el = document.createElement('div');
         el.className = 'ci-msg ' + (role === 'user' ? 'ci-msg-user' : 'ci-msg-bot') + (isError ? ' ci-msg-error' : '');
-        el.textContent = text; // textContent: aman dari XSS
+        el.textContent = role === 'user' ? text : tidy(text); // textContent: aman dari XSS
         log.appendChild(el);
         scrollDown();
         return el;
@@ -137,8 +146,9 @@ if (root) {
             typing.remove();
 
             if (res.ok && data.reply) {
-                addBubble('bot', data.reply);
-                history.push({ role: 'bot', text: data.reply });
+                const reply = tidy(data.reply);
+                addBubble('bot', reply);
+                history.push({ role: 'bot', text: reply });
                 save();
             } else if (res.status === 429) {
                 addBubble('bot', 'Kamu mengirim terlalu cepat. Tunggu sebentar, lalu coba lagi.', true);

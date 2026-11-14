@@ -48,7 +48,7 @@
                             <div class="card-body p-4">
                                 <div class="d-flex align-items-center gap-3 mb-3">
                                     {{-- Penanda khusus jika yang komentar adalah AI nantinya --}}
-                                    @if ($comment->user->name == 'Hermes AI' || $comment->user->name == 'Teman Virtual')
+                                    @if ($comment->user->email == 'hermes@konselor.local' || $comment->user->name == 'Hermes AI' || $comment->user->name == 'Teman Virtual')
                                         <span class="ci-avatar is-ai">🤖</span>
                                         <div>
                                             <div class="fw-semibold">{{ $comment->user->name }}</div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\CrisisSafety;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -10,7 +11,7 @@ class ChatbotController extends Controller
 {
     /**
      * Meneruskan pesan dari widget chatbot ke webhook n8n
-     * (n8n -> OpenRouter) dan mengembalikan balasan dalam bentuk JSON.
+     * (n8n -> Hermes) dan mengembalikan balasan dalam bentuk JSON.
      */
     public function send(Request $request): JsonResponse
     {
@@ -21,6 +22,11 @@ class ChatbotController extends Controller
             'history.*.text' => ['required_with:history', 'string', 'max:1000'],
         ]);
 
+        // Pesan krisis dijawab langsung dengan teks tetap, tanpa melewati model AI.
+        if (CrisisSafety::detect($data['message'])) {
+            return response()->json(['reply' => CrisisSafety::REPLY]);
+        }
+
         $url = config('services.n8n.chat_webhook');
 
         if (! $url) {
@@ -30,7 +36,9 @@ class ChatbotController extends Controller
         }
 
         try {
-            $response = Http::timeout(60)->acceptJson()->post($url, [
+            $response = Http::timeout(60)->acceptJson()
+                ->withHeaders(['X-Console-Secret' => (string) config('services.n8n.webhook_secret')])
+                ->post($url, [
                 'message' => $data['message'],
                 'history' => $data['history'] ?? [],
                 'session_id' => $request->session()->getId(),
@@ -60,8 +68,10 @@ class ChatbotController extends Controller
                 ?? data_get($json, '0.reply'))
             : null;
 
-        $reply ??= trim($response->body());
+        $reply = trim((string) ($reply ?? $response->body()));
 
-        return response()->json(['reply' => $reply !== '' ? $reply : 'Bot belum punya jawaban. Coba tulis ulang pesanmu.']);
+        return response()->json([
+            'reply' => $reply !== '' ? $reply : 'Bot belum punya jawaban. Coba tulis ulang pesanmu.',
+        ]);
     }
 }
