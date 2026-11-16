@@ -36,7 +36,7 @@ class ChatbotController extends Controller
         }
 
         try {
-            $response = Http::timeout(60)->acceptJson()
+            $response = Http::timeout(25)->acceptJson()
                 ->withHeaders(['X-Console-Secret' => (string) config('services.n8n.webhook_secret')])
                 ->post($url, [
                 'message' => $data['message'],
