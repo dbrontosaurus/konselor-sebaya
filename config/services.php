@@ -18,6 +18,7 @@ return [
     'n8n' => [
         'webhook_url' => env('N8N_WEBHOOK_URL'),
         'chat_webhook' => env('N8N_CHAT_WEBHOOK_URL'),
+        'webhook_secret' => env('N8N_WEBHOOK_SECRET'),
         'hermes_webhook_token' => env('HERMES_WEBHOOK_TOKEN'),
     ],
 
