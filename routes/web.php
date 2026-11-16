@@ -11,7 +11,7 @@ Route::get('/', function () {
     return view('welcome'); // Ini halaman landing page bawaan
 });
 
-
+Route::post('/hermes-reply', [CommentController::class, 'storeAi'])->name('hermes.reply');
 
 Auth::routes();
 
